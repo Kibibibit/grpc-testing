@@ -41,24 +41,7 @@ class _GrpcTestPageState extends State<GrpcTestPage> {
                   Item.fromJson(jsonEncode({"1": "JOE", "2": "MAHER"}))
                 ]));
               },
-              child: const Text("Runk sink!")),
-          TextButton(
-              onPressed: () {
-                stub.pipe(Stream.fromIterable(theList)).listen((Item item) {
-                  print("${item.body} - ${item.token}");
-                });
-              },
-              child: const Text("Open Pipe!")),
-          TextButton(
-              onPressed: () {
-                setState(() {
-                  theList.add(
-                      Item.fromJson(jsonEncode({"1": "JOE", "2": "MAHER"})));
-
-                  print(theList);
-                });
-              },
-              child: const Text("Add to pipe!"))
+              child: const Text("Runk sink!"))
         ],
       ),
     );
