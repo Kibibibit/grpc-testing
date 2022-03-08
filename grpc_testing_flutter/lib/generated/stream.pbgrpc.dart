@@ -14,38 +14,39 @@ import 'stream.pb.dart' as $0;
 export 'stream.pb.dart';
 
 class StreamClient extends $grpc.Client {
-  static final _$source = $grpc.ClientMethod<$0.Empty, $0.Item>(
-      '/stream.Stream/Source',
-      ($0.Empty value) => value.writeToBuffer(),
+  static final _$connect = $grpc.ClientMethod<$0.Item, $0.Item>(
+      '/stream.Stream/Connect',
+      ($0.Item value) => value.writeToBuffer(),
       ($core.List<$core.int> value) => $0.Item.fromBuffer(value));
   static final _$sink = $grpc.ClientMethod<$0.Item, $0.Empty>(
-      '/stream.Stream/Sink',
+      '/stream.Stream/sink',
       ($0.Item value) => value.writeToBuffer(),
       ($core.List<$core.int> value) => $0.Empty.fromBuffer(value));
-  static final _$pipe = $grpc.ClientMethod<$0.Item, $0.Item>(
-      '/stream.Stream/Pipe',
+  static final _$heartbeat = $grpc.ClientMethod<$0.Item, $0.Empty>(
+      '/stream.Stream/Heartbeat',
       ($0.Item value) => value.writeToBuffer(),
-      ($core.List<$core.int> value) => $0.Item.fromBuffer(value));
+      ($core.List<$core.int> value) => $0.Empty.fromBuffer(value));
 
   StreamClient($grpc.ClientChannel channel,
       {$grpc.CallOptions? options,
       $core.Iterable<$grpc.ClientInterceptor>? interceptors})
       : super(channel, options: options, interceptors: interceptors);
 
-  $grpc.ResponseStream<$0.Item> source($0.Empty request,
+  $grpc.ResponseStream<$0.Item> connect($0.Item request,
       {$grpc.CallOptions? options}) {
-    return $createStreamingCall(_$source, $async.Stream.fromIterable([request]),
+    return $createStreamingCall(
+        _$connect, $async.Stream.fromIterable([request]),
         options: options);
   }
 
-  $grpc.ResponseFuture<$0.Empty> sink($async.Stream<$0.Item> request,
+  $grpc.ResponseFuture<$0.Empty> sink($0.Item request,
       {$grpc.CallOptions? options}) {
-    return $createStreamingCall(_$sink, request, options: options).single;
+    return $createUnaryCall(_$sink, request, options: options);
   }
 
-  $grpc.ResponseStream<$0.Item> pipe($async.Stream<$0.Item> request,
+  $grpc.ResponseFuture<$0.Empty> heartbeat($0.Item request,
       {$grpc.CallOptions? options}) {
-    return $createStreamingCall(_$pipe, request, options: options);
+    return $createUnaryCall(_$heartbeat, request, options: options);
   }
 }
 
@@ -53,37 +54,45 @@ abstract class StreamServiceBase extends $grpc.Service {
   $core.String get $name => 'stream.Stream';
 
   StreamServiceBase() {
-    $addMethod($grpc.ServiceMethod<$0.Empty, $0.Item>(
-        'Source',
-        source_Pre,
+    $addMethod($grpc.ServiceMethod<$0.Item, $0.Item>(
+        'Connect',
+        connect_Pre,
         false,
         true,
-        ($core.List<$core.int> value) => $0.Empty.fromBuffer(value),
+        ($core.List<$core.int> value) => $0.Item.fromBuffer(value),
         ($0.Item value) => value.writeToBuffer()));
     $addMethod($grpc.ServiceMethod<$0.Item, $0.Empty>(
-        'Sink',
-        sink,
-        true,
+        'sink',
+        sink_Pre,
+        false,
         false,
         ($core.List<$core.int> value) => $0.Item.fromBuffer(value),
         ($0.Empty value) => value.writeToBuffer()));
-    $addMethod($grpc.ServiceMethod<$0.Item, $0.Item>(
-        'Pipe',
-        pipe,
-        true,
-        true,
+    $addMethod($grpc.ServiceMethod<$0.Item, $0.Empty>(
+        'Heartbeat',
+        heartbeat_Pre,
+        false,
+        false,
         ($core.List<$core.int> value) => $0.Item.fromBuffer(value),
-        ($0.Item value) => value.writeToBuffer()));
+        ($0.Empty value) => value.writeToBuffer()));
   }
 
-  $async.Stream<$0.Item> source_Pre(
-      $grpc.ServiceCall call, $async.Future<$0.Empty> request) async* {
-    yield* source(call, await request);
+  $async.Stream<$0.Item> connect_Pre(
+      $grpc.ServiceCall call, $async.Future<$0.Item> request) async* {
+    yield* connect(call, await request);
   }
 
-  $async.Stream<$0.Item> source($grpc.ServiceCall call, $0.Empty request);
-  $async.Future<$0.Empty> sink(
-      $grpc.ServiceCall call, $async.Stream<$0.Item> request);
-  $async.Stream<$0.Item> pipe(
-      $grpc.ServiceCall call, $async.Stream<$0.Item> request);
+  $async.Future<$0.Empty> sink_Pre(
+      $grpc.ServiceCall call, $async.Future<$0.Item> request) async {
+    return sink(call, await request);
+  }
+
+  $async.Future<$0.Empty> heartbeat_Pre(
+      $grpc.ServiceCall call, $async.Future<$0.Item> request) async {
+    return heartbeat(call, await request);
+  }
+
+  $async.Stream<$0.Item> connect($grpc.ServiceCall call, $0.Item request);
+  $async.Future<$0.Empty> sink($grpc.ServiceCall call, $0.Item request);
+  $async.Future<$0.Empty> heartbeat($grpc.ServiceCall call, $0.Item request);
 }
