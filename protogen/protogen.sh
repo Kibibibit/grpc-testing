@@ -15,7 +15,7 @@ FILTER=$@
 
 if [ -z "$FILTER" ]
 then
-  FILTER="baseentity"
+  FILTER="baseentity baseentity_attribute"
 fi
 
 
@@ -44,40 +44,57 @@ do
           --user="$USER" \
           --password="$PASSWORD" \
           --database="$DB" \
-          --execute="SELECT COLUMN_NAME, DATA_TYPE FROM information_schema.COLUMNS WHERE TABLE_NAME = '$table';"`
+          --execute="SELECT COLUMN_NAME FROM information_schema.COLUMNS WHERE TABLE_NAME = '$table';"`
+
+        # , 
 
         # We don't want the first two entries as those are just the header names
         count=0
         # I couldn't work out a better way to do this...
         second=0
 
-        SET=""
-        TABLE_SET=""
+        
+        TABLE_FIELD_SET=""
+        TABLE_META_SET=""
 
         echo --- TABLE: $table ---
 
         for field in $FIELDS
         do
 
-          if [ $count -gt 1 ]
-          then          
-
-            if [ $second -eq 1 ]
-            then
-              SET=$SET$DELIM$field
-              TABLE_SET="$TABLE_SET,$SET"
-              second=0
-            else
-              SET=$field
-              second=1
-            fi
+          if [ $count -gt 0 ]
+          then
+            TABLE_FIELD_SET="$TABLE_FIELD_SET,$field"
             
+            META=`mysql --port="$PORT" \
+            --host="$HOST" \
+            --user="$USER" \
+            --password="$PASSWORD" \
+            --database="$DB" \
+            --execute="SELECT DATA_TYPE, IS_NULLABLE, COLUMN_KEY FROM information_schema.COLUMNS WHERE TABLE_NAME = '$table' AND COLUMN_NAME = '$field';"`
+            META_SET=""
+            metacount=0
+            for metadata in $META
+            do
+              if [ $metacount -gt 2 ]
+              then
+                META_SET="$META_SET$DELIM$metadata"
+                
+              fi
+
+              metacount=$((metacount+1))
+            done
+            TABLE_META_SET="$TABLE_META_SET,$META_SET"
+
+
+
           fi
 
           count=$((count+1))
 
         done
-        ./create-proto.sh $table $DELIM "$TABLE_SET"
+
+        ./create-proto.sh $table $DELIM "$TABLE_FIELD_SET" "$TABLE_META_SET"
 
       fi
 

@@ -5,13 +5,17 @@
 MESSAGE=$1
 DELIM=$2
 FIELDS=$3
+METAS=$4
+
+PRIMARY="PRIMARY"
+OTHER="OTHER"
 
 ## Define the filename
 FILE_NAME="./protos/$MESSAGE.proto"
 
 ## Will write to FILE_NAME
 function write {
-    echo $1 >> "$FILE_NAME"
+    echo -e $1 >> "$FILE_NAME"
 }
 
 ## Adds a blank newline to FILE_NAME
@@ -20,16 +24,44 @@ function newline {
 }
 
 function writeFields {
-
+    count=1
+    index=1
     IFS=',' read -ra FIELD_ARR <<< $1
+    IFS=',' read -ra META_ARR <<< $2
+    DELIM=$3
+    KEY_TYPE=$4
+
     for field in ${FIELD_ARR[@]}
     do
-        IFS=$DELIM read -ra ADDR <<< $field
-        VAR=${ADDR[0]}
-        SQL_TYPE=${ADDR[1]}
+        
+        VAR=$field
+        
+        META_SET=${META_ARR[index]}
 
-        echo $VAR, $SQL_TYPE
+        IFS=$DELIM read -ra META <<< $META_SET
 
+        SQL_TYPE=${META[1]}
+        NULLABLE=${META[2]}
+        KEY=${META[3]}
+
+        
+        
+        PROTO_TYPE=`./sql-to-prototype.sh $SQL_TYPE $NULLABLE`
+        if [ ! "$KEY" = "PRI" ] && [ "$KEY_TYPE" = "$OTHER" ]
+        then
+            write "\t$PROTO_TYPE $VAR = $count;"
+            count=$((count+1))
+        fi
+
+        if [ "$KEY" = "PRI" ] && [ "$KEY_TYPE" = "$PRIMARY" ]
+        then
+            write "\t$PROTO_TYPE $VAR = $count;"
+            count=$((count+1))
+        fi
+
+        index=$((index+1))
+
+        
     done
 }
 
@@ -56,8 +88,15 @@ newline
 write "package $MESSAGE;"
 newline
 newline
-write "message $MESSAGE {"
-writeFields $FIELDS
+write "message ${MESSAGE}_key {"
+writeFields $FIELDS $METAS $DELIM $PRIMARY
 write "}"
+newline
+newline
+write "message ${MESSAGE}_value {"
+writeFields $FIELDS $METAS $DELIM $OTHER
+write "}"
+
+
 
 
