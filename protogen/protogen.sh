@@ -15,7 +15,7 @@ FILTER=$@
 
 if [ -z "$FILTER" ]
 then
-  FILTER="baseentity baseentity_attribute"
+  FILTER="attribute baseentity baseentity_attribute baseentity_baseentity ask question question_question answer"
 fi
 
 
