@@ -8,8 +8,81 @@ HOST=127.0.0.1
 USER=$GENNY_LOCAL_MYSQL_USER
 PASSWORD=$GENNY_LOCAL_MYSQL_PASSWORD
 DB=$GENNY_LOCAL_MYSQL_DB
+
 DELIM=":"
 
+
+HELP="
+------- PROTOGEN HELP ------- \n
+-P - Sets the port. Defaults to 3310\n
+-H - Sets the Hostname. Defaults to 127.0.0.1\n
+-u - Sets the MySQL user. Defaults to \$GENNY_LOCAL_MYSQL_USER\n
+-p - Sets the MySQL password. Defaults to \$GENNY_LOCAL_MYSQL_PASSWORD\n
+-d - Sets the MySQL db. Defaults to \$GENNY_LOCAL_MYSQL_DB\n
+-h - Displays this message
+"
+
+
+while getopts ":P:H:u:p:dh" opt
+do
+
+  case $opt in
+    P)
+      PORT=$OPTARG >&2
+      ;;
+    H)
+      HOST=$OPTARG >&2
+      ;;
+    u)
+      USER=$OPTARG >&2
+      ;;
+    p)
+      PASSWORD=$OPTARG >&2
+      ;;
+    d)
+      DB=$OPTARG >&2
+      ;;
+    h)
+      echo -e $HELP
+      exit
+      ;;
+    \?)
+      echo "Invalid option: -$OPTARG" >&2
+      echo -e $HELP
+      exit
+      ;;
+  esac
+done
+
+if [ -z "$PORT" ]
+then
+  echo "Port is not set. Can set with -P"
+  exit
+fi
+
+if [ -z "$HOST" ]
+then
+  echo "Hostname is not set. Can set with -H"
+  exit
+fi
+
+if [ -z "$USER" ]
+then
+  echo "MySQL user is not set. Can set with -u \$GENNY_LOCAL_MYSQL_USER"
+  exit
+fi
+
+if [ -z "$PASSWORD" ]
+then
+  echo "MySQL password is not set. Can set with -p \$GENNY_LOCAL_MYSQL_PASSWORD"
+  exit
+fi
+
+if [ -z "$DB" ]
+then
+  echo "MySQL db is not set. Can set with -d \$GENNY_LOCAL_MYSQL_DB"
+  exit
+fi
 
 FILTER=$@
 
