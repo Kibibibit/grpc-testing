@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-./clear-protos.sh
+
 
 PORT=3310
 HOST=127.0.0.1
@@ -91,6 +91,7 @@ then
   FILTER="attribute baseentity baseentity_attribute baseentity_baseentity ask question question_question answer"
 fi
 
+./clear-protos.sh
 
 TABLES=`mysql --port="$PORT" \
       --host="$HOST" \
